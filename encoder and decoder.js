@@ -1,19 +1,15 @@
 const readline = require('readline')
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 
 const morseMap = {
-  a:'.-', b:'-...', c:'-.-.', d:'-..', e:'.', f:'..-.',
-  g:'--.', h:'....', i:'..', j:'.---', k:'-.-', l:'.-..',
-  m:'--', n:'-.', o:'---', p:'.--.', q:'--.-', r:'.-.',
-  s:'...', t:'-', u:'..-', v:'...-', w:'.--', x:'-..-',
-  y:'-.--', z:'--..',
+  a:'.-',b:'-...',c:'-.-.',d:'-..',e:'.',f:'..-.',g:'--.',h:'....',i:'..',j:'.---',
+  k:'-.-',l:'.-..',m:'--',n:'-.',o:'---',p:'.--.',q:'--.-',r:'.-.',s:'...',t:'-',
+  u:'..-',v:'...-',w:'.--',x:'-..-',y:'-.--',z:'--..',
   '0':'-----','1':'.----','2':'..---','3':'...--','4':'....-',
   '5':'.....','6':'-....','7':'--...','8':'---..','9':'----.',
-  '.':'.-.-.-', ',':'--..--', '?':'..--..', '\'':'.----.',
-  '!':'-.-.--', '/':'-..-.', '(':'-.--.', ')':'-.--.-',
-  '&':'.-...', ':':'---...', ';':'-.-.-.', '=':'-...-',
-  '+':'.-.-.', '-':'-....-','_':'..--.-','"':'.-..-.',
-  '$':'...-..-','@':'.--.-.',' ':'/'
+  '.':'.-.-.-',',':'--..--','?':'..--..','\'':'.----.','!':'-.-.--',
+  '/':'-..-.','(':'-.--.',')':'-.--.-','&':'.-...',':':'---...',
+  ';':'-.-.-.','=':'-...-','+':'.-.-.','-':'-....-','_':'..--.-',
+  '"':'.-..-.','$':'...-..-','@':'.--.-.',' ':'/'
 }
 
 const encodeStuff = {
@@ -145,45 +141,48 @@ function autodetect(t){
 
 const formats = Object.keys(encodeStuff)
 
-function ask(q){return new Promise(res=>rl.question(q,res))}
+function ask(rl, q){ return new Promise(res => rl.question(q, res)) }
 
 async function main(){
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+
   console.log('\nfloofy decoder/encoder\n')
   console.log('1 = encode')
   console.log('2 = decode')
   console.log('3 = autodetect\n')
-  const m = await ask('pick 1 2 or 3 > ')
-  if(!['1','2','3'].includes(m))return rl.close()
+  const m = await ask(rl, 'pick 1 2 or 3 > ')
+  if(!['1','2','3'].includes(m)) return rl.close()
 
   if(m==='1'){
     formats.forEach((f,i)=>console.log(`${i+1} = ${f}`))
-    const n = await ask('\npick format > ')
+    const n = await ask(rl, '\npick format > ')
     const f = formats[+n-1]
-    if(!f)return rl.close()
-    const t = await ask('\ntext to encode > ')
-    console.log('\nresult\n'+encodeStuff[f](t))
+    if(!f) return rl.close()
+    const t = await ask(rl, '\ntext to encode > ')
+    console.log('\nresult\n' + encodeStuff[f](t))
   }
 
   if(m==='2'){
     formats.forEach((f,i)=>console.log(`${i+1} = ${f}`))
-    const n = await ask('\npick format :3 > ')
+    const n = await ask(rl, '\npick format :3 > ')
     const f = formats[+n-1]
-    if(!f)return rl.close()
-    const t = await ask('\ntext to decode > ')
-    console.log('\nresult\n'+decodeStuff[f](t))
+    if(!f) return rl.close()
+    const t = await ask(rl, '\ntext to decode > ')
+    console.log('\nresult\n' + decodeStuff[f](t))
   }
 
   if(m==='3'){
-    const t = await ask('\ntext to autodetect > ')
+    const t = await ask(rl, '\ntext to autodetect > ')
     const f = autodetect(t)
-    if(f==='plain'){console.log('\ncould not detect :(');return rl.close()}
-    console.log(`\ndetected ${f}\n`+decodeStuff[f](t))
+    if(f === 'plain'){ console.log('\ncould not detect :('); return rl.close() }
+    console.log(`\ndetected ${f}\n` + decodeStuff[f](t))
   }
 
-  rl.close()
+  rl.question('\npress enter to do another one :3 > ', () => {
+    rl.close()
+    console.clear()
+    main()
+  })
 }
 
-main().then(()=>{
-  const r2=readline.createInterface({ input:process.stdin, output:process.stdout })
-  r2.question('\npress enter to exit :D > ',()=>r2.close())
-})
+main()
